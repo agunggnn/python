@@ -1,10 +1,14 @@
 import tkinter as tk
 
-# Fuction to handle button clicks
+# Function to handle button clicks
 def button_click(value):
     current = entry.get()
-    entry.delete(0, tk.END)
-    entry.insert(0, current + value)
+    if value in '0123456789':
+        entry.insert(tk.END, value)
+    elif value in '+-*/' and current and current[-1] not in '+-*/':
+        entry.insert(tk.END, value)
+    elif value == '.' and '.' not in current.split()[-1]:
+        entry.insert(tk.END, value)
 
 # Function to evaluate the expression
 def calculate():
@@ -20,6 +24,17 @@ def calculate():
 def clear():
     entry.delete(0, tk.END)
 
+# Function to handle key presses
+def key_press(event):
+    if event.char in '0123456789+-*/.':
+        button_click(event.char)
+    elif event.keysym in ['Return', 'KP_Enter']:
+        calculate()
+    elif event.keysym == 'Escape':
+        clear()
+    elif event.keysym in ['KP_Add', 'KP_Subtract', 'KP_Multiply', 'KP_Divide']:
+        button_click(event.keysym[-1])
+
 # Create the main window
 root = tk.Tk()
 root.title("Calculator")
@@ -27,6 +42,9 @@ root.title("Calculator")
 # Entry widget for display
 entry = tk.Entry(root, width=16, font=('Arial', 24), borderwidth=2, relief="solid", justify="right")
 entry.grid(row=0, column=0, columnspan=4)
+
+# Bind key presses to the entry widget
+entry.bind('<Key>', key_press)
 
 # Button layout
 buttons = [
